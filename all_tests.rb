@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 # all_tests.rb
 
-#require 'minitest/autorun'
+# require 'minitest/autorun'
 require 'simplecov'
 SimpleCov.start
 

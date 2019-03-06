@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # main.rb
 require_relative 'prospector'
 require_relative 'map'

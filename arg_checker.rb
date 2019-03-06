@@ -1,13 +1,10 @@
+# frozen_string_literal: true
+
 # arg_checker.rb
 
 class ArgChecker
-  
   def initialize(args)
-  	@args = args
-  end
-
-  def get_length
-    @args.length
+    @args = args
   end
 
   def check_arg_count

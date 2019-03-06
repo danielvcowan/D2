@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 # Daniel Cowan
 require_relative 'mines'
 require_relative 'map'
 
+# This class does prospector things
 class Prospector
-
   attr_accessor :id, :num_turns, :turn, :ruby_count, :fake_ruby_count
   attr_accessor :rubies_found, :fake_rubies_found, :days, :ruby_string, :fake_ruby_string
 
@@ -16,14 +18,18 @@ class Prospector
     @rubies_found = 0
     @fake_rubies_found = 0
     @days = 0
-    @ruby_string = ""
-    @fake_ruby_string = ""
+    @ruby_string = ''
+    @fake_ruby_string = ''
   end
 
-  def find_rubies(max_rub, max_frub)
-    @rubies_found = rand(max_rub + 1)
-    @fake_rubies_found = rand(max_frub + 1)
-    return @rubies_found, @fake_rubies_found
+  def find_rubies(rng, max_rub)
+    @rubies_found = rng.rand(max_rub + 1)
+    @rubies_found
+  end
+
+  def find_frubies(rng, max_frub)
+    @fake_rubies_found = rng.rand(max_frub + 1)
+    @fake_rubies_found
   end
 
   def add_to_count
@@ -37,34 +43,52 @@ class Prospector
 
   def move?
     found_today = @rubies_found + @fake_rubies_found
-    if found_today <= 0
-      true
-    end
+    true if found_today <= 0
   end
 
-  def plural?
-    if @rubies_found == 1
-      @ruby_string = "ruby"
-    else
-      @ruby_string = "rubies"
-    end
+  def plural?(ruby, fruby)
+    @ruby_string = if ruby == 1
+                     'ruby'
+                   else
+                     'rubies'
+                   end
 
-    if @fake_rubies_found == 1
-      @fake_ruby_string = "ruby"
-    else
-      @fake_ruby_string = "rubies"
-    end
+    @fake_ruby_string = if fruby == 1
+                          'fake ruby'
+                        else
+                          'fake rubies'
+                        end
   end
 
   def display_day(mine_name)
-    if @rubies_found > 0 && @fake_rubies_found > 0
-      puts "\tFound %d %s and %d fake %s in %s." % [@rubies_found, @ruby_string, @fake_rubies_found, @fake_ruby_string, mine_name]
-    elsif @rubies_found > 0
-      puts "\tFound %d %s in %s." % [@rubies_found, @ruby_string, mine_name]
-    elsif @fake_rubies_found > 0
-      puts "\tFound %d fake %s in %s." % [@fake_rubies_found, @fake_ruby_string, mine_name]
+    if @rubies_found.positive? && @fake_rubies_found.positive?
+      puts format(
+        "\tFound %<rub_fnd>d %<rub_str>s and %<frub_fnd>d %<frub_str>s in %<m_name>s.",
+        rub_fnd: @rubies_found,
+        rub_str: @ruby_string,
+        frub_fnd: @fake_rubies_found,
+        frub_str: @fake_ruby_string,
+        m_name: mine_name
+      )
+    elsif @rubies_found.positive?
+      puts format(
+        "\tFound %<rub_fnd>d %<rub_str>s in %<m_name>s.",
+        rub_fnd: @rubies_found,
+        rub_str: @ruby_string,
+        m_name: mine_name
+      )
+    elsif @fake_rubies_found.positive?
+      puts format(
+        "\tFound %<frub_fnd>d %<frub_str>s in %<m_name>s.",
+        frub_fnd: @fake_rubies_found,
+        frub_str: @fake_ruby_string,
+        m_name: mine_name
+      )
     else
-      puts "\tFound no rubies or fake rubies in %s." % [mine_name]
+      puts format(
+        "\tFound no rubies or fake rubies in %<m_name>s.",
+        m_name: mine_name
+      )
     end
   end
 
@@ -73,28 +97,39 @@ class Prospector
   end
 
   def display_trip
-    puts "After %d days, Rubyist %d found:" % [@days, @id]
-    plural?
-    puts "\t%d %s." % [@ruby_count, @ruby_string]
-    puts "\t%d %s." % [@fake_ruby_count, @fake_ruby_string]
+    puts format(
+      'After %<day>d days, Rubyist %<ident>d found:',
+      day: @days,
+      ident: @id
+    )
+    puts format(
+      "\t%<rub_cnt>d %<rub_str>s.",
+      rub_cnt: @ruby_count,
+      rub_str: @ruby_string
+    )
+    puts format(
+      "\t%<frub_cnt>d %<frub_str>s.",
+      frub_cnt: @fake_ruby_count,
+      frub_str: @fake_ruby_string
+    )
   end
 
   def check_turns(old_town, mine_name)
-  	unless @turn == @num_turns
+    if @turn == @num_turns
+      false
+    else
       puts 'Heading from ' + old_town + ' to ' + mine_name + '.'
       true
-    else
-      false
     end
   end
 
   def going_home_how?
     if @ruby_count >= 10
-      puts "Going home victorious!"
+      puts 'Going home victorious!'
     elsif @ruby_count >= 1 && @ruby_count <= 9
-      puts "Going home sad."
+      puts 'Going home sad.'
     else
-      puts "Going home empty-handed."
+      puts 'Going home empty-handed.'
     end
   end
-end  
+end
